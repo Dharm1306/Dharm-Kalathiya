@@ -11,7 +11,7 @@ import clerkWebhooks from "./controllers/clerkWebhooks.js";
 import connectCloudinary from "./configs/cloudinary.js";
 import { stripeWebhooks } from "./controllers/stripeWebhooks.js";
 
-import cors from "cors";
+
 
 app.use(cors({
   origin: "https://dharm-kalathiya-9k05vromu-dharm1306s-projects.vercel.app",
