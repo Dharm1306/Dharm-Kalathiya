@@ -15,7 +15,7 @@ import cors from "cors";
 
 app.use(cors({
   origin: "https://dharm-kalathiya-9k05vromu-dharm1306s-projects.vercel.app",
-  credentials: true
+  credentials: true,
 }));
 app.use(express.json());
 
