@@ -23,24 +23,33 @@ app.post(
 );
 
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
-
+const RENDER_API_URL = process.env.RENDER_API_URL || "https://quickstay-api-fr34.onrender.com";
 const allowedOrigins = [
   CLIENT_URL,
+  RENDER_API_URL,
   "https://dharm-kalathiya.vercel.app",
-  "https://dharm-kalathiya-git-main-dharm1306s-projects.vercel.app/",
+  "https://dharm-kalathiya-git-main-dharm1306s-projects.vercel.app",
+  "https://dharm-kalathiya-9k05vromu-dharm1306s-projects.vercel.app",
 ];
 
-app.use(cors({
+const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("CORS not allowed"));
+    if (!origin) {
+      return callback(null, true);
     }
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    console.warn(`Blocked CORS origin: ${origin}`);
+    return callback(new Error("CORS not allowed"));
   },
   credentials: true,
- 
-}));
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 app.use(express.json());
 app.use(clerkMiddleware());
