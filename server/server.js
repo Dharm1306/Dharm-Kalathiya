@@ -32,12 +32,14 @@ const allowedOrigins = [
   "https://dharm-kalathiya-9k05vromu-dharm1306s-projects.vercel.app",
 ];
 
+const ALLOWED_VERCEL_REGEX = /^https:\/\/([a-z0-9-]+\.)?vercel\.app$/i;
+
 const corsOptions = {
   origin: (origin, callback) => {
     if (!origin) {
       return callback(null, true);
     }
-    if (allowedOrigins.includes(origin)) {
+    if (allowedOrigins.includes(origin) || ALLOWED_VERCEL_REGEX.test(origin)) {
       return callback(null, true);
     }
     console.warn(`Blocked CORS origin: ${origin}`);
