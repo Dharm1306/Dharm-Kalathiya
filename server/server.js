@@ -27,7 +27,7 @@ const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
 const allowedOrigins = [
   CLIENT_URL,
   "https://dharm-kalathiya.vercel.app",
-  "https://dharm-kalathiya-9k05vromu-dharm1306s-projects.vercel.app",
+  "https://dharm-kalathiya-git-main-dharm1306s-projects.vercel.app/",
 ];
 
 app.use(cors({
@@ -39,8 +39,7 @@ app.use(cors({
     }
   },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+ 
 }));
 
 app.use(express.json());
