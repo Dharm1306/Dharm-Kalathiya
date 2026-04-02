@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: quickstay-server
+    env: node
+    branch: main
+    buildCommand: "cd server && npm install"
+    startCommand: "cd server && npm start"
+    autoDeploy: true
+    plan: free
+    pullRequestPreviews: false
+    envVars:
+      - key: MONGODB_URI
+        fromDatabase: mongodb_uri
+      - key: CLIENT_URL
+        value: "https://dharm-kalathiya.vercel.app"
+  - type: static
+    name: quickstay-client
+    env: static
+    branch: main
+    buildCommand: "cd client && npm install && npm run build"
+    staticPublishPath: "client/dist"
+    autoDeploy: true
+    pullRequestPreviews: false
