@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { assets } from "../assets/assets";
 
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
+axios.defaults.withCredentials = true;
 
 const AppContext = createContext();
 
@@ -31,7 +32,7 @@ export const AppProvider = ({ children }) => {
 
     const fetchUser = async () => {
         try {
-            const { data } = await axios.get('/api/user', { headers: { Authorization: `Bearer ${await getToken()}` } })
+            const { data } = await axios.get('/api/user', { withCredentials: true, headers: { Authorization: `Bearer ${await getToken()}` } })
             if (data.success) {
                 setIsOwner(data.role === "hotelOwner");
                 setSearchedCities(data.recentSearchedCities)
@@ -49,7 +50,7 @@ export const AppProvider = ({ children }) => {
 
     const fetchRooms = async () => {
         try {
-            const { data } = await axios.get('/api/rooms')
+            const { data } = await axios.get('/api/rooms', { withCredentials: true })
             if (data.success) {
                 setRooms(data.rooms)
             }
