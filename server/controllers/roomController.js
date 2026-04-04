@@ -53,6 +53,28 @@ export const getRooms = async (req, res) => {
   }
 };
 
+// API to get a single room by ID
+// GET /api/rooms/:id
+export const getRoom = async (req, res) => {
+  try {
+    const room = await Room.findById(req.params.id).populate({
+      path: 'hotel',
+      populate: {
+        path: 'owner',
+        select: 'image',
+      },
+    });
+
+    if (!room) {
+      return res.json({ success: false, message: 'Room not found' });
+    }
+
+    res.json({ success: true, room });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
 // API to get all rooms for a specific hotel
 // GET /api/rooms/owner
 export const getOwnerRooms = async (req, res) => {
