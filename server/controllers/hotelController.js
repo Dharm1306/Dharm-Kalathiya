@@ -1,6 +1,21 @@
 import Hotel from "../models/Hotel.js";
 import User from "../models/User.js";
 
+// API to get hotel details for the owner
+// GET /api/hotels
+export const getHotel = async (req, res) => {
+  try {
+    const owner = req.user._id;
+    const hotel = await Hotel.findOne({ owner });
+    if (!hotel) {
+      return res.json({ success: false, message: "Hotel not found" });
+    }
+    res.json({ success: true, hotel });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
+
 // API to create a new hotel
 // POST /api/hotels
 export const registerHotel = async (req, res) => {

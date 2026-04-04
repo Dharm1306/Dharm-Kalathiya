@@ -21,6 +21,7 @@ export const AppProvider = ({ children }) => {
     const [showHotelReg, setShowHotelReg] = useState(false);
     const [rooms, setRooms] = useState([]);
     const [searchedCities, setSearchedCities] = useState([]); // max 3 recent searched cities
+    const [hotel, setHotel] = useState(null);
 
     const facilityIcons = {
         "Free WiFi": assets.freeWifiIcon,
@@ -36,12 +37,28 @@ export const AppProvider = ({ children }) => {
             if (data.success) {
                 setIsOwner(data.role === "hotelOwner");
                 setSearchedCities(data.recentSearchedCities)
+                if (data.role === "hotelOwner") {
+                    fetchHotel();
+                }
             } else {
                 // Retry Fetching User Details after 5 seconds
                 // Useful when user creates account using email & password
                 setTimeout(() => {
                     fetchUser();
                 }, 2000);
+            }
+        } catch (error) {
+            toast.error(error.message)
+        }
+    }
+
+    const fetchHotel = async () => {
+        try {
+            const { data } = await axios.get('/api/hotels', { withCredentials: true, headers: { Authorization: `Bearer ${await getToken()}` } })
+            if (data.success) {
+                setHotel(data.hotel);
+            } else {
+                toast.error(data.message)
             }
         } catch (error) {
             toast.error(error.message)
@@ -80,7 +97,8 @@ export const AppProvider = ({ children }) => {
         showHotelReg, setShowHotelReg,
         facilityIcons,
         rooms, setRooms,
-        searchedCities, setSearchedCities
+        searchedCities, setSearchedCities,
+        hotel, setHotel
     };
 
     return (

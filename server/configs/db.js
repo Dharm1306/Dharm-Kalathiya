@@ -24,8 +24,6 @@ const connectDB = async () => {
         mongoose.connection.on('disconnected', () => console.error("MongoDB disconnected"));
 
         await mongoose.connect(finalMongoUri, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
             serverSelectionTimeoutMS: 10000,
             socketTimeoutMS: 45000,
         });
