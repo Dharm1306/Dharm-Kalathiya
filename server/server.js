@@ -2,6 +2,7 @@ import express from "express";
 import "dotenv/config";
 import cors from "cors";
 import connectDB from "./configs/db.js";
+import { seedSampleData } from "./configs/seed.js";
 import { clerkMiddleware } from "@clerk/express";
 import userRouter from "./routes/userRoutes.js";
 import hotelRouter from "./routes/hotelRoutes.js";
@@ -13,7 +14,11 @@ import { stripeWebhooks } from "./controllers/stripeWebhooks.js";
 
 const app = express();
 
-connectDB();
+connectDB().then(() => {
+  if (process.env.NODE_ENV !== "production") {
+    seedSampleData();
+  }
+});
 connectCloudinary();
 
 app.post(
