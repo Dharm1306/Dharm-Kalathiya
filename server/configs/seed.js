@@ -6,7 +6,7 @@ const sampleHotel = {
   address: '123 Ocean Drive, Miami',
   contact: '+1 305 555 0123',
   city: 'Miami',
-  owner: 'sample-owner-id',
+  owner: 'sample-owner-id', // Keep fake ID for schema compliance
 };
 
 const sampleRooms = [

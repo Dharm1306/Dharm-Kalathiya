@@ -43,7 +43,7 @@ export const getRooms = async (req, res) => {
       .populate({
         path: 'hotel',
         populate: {
-          path: 'owner', 
+          path: 'owner',
           select: 'image',
         },
       }).sort({ createdAt: -1 });
