@@ -57,20 +57,33 @@ export const getRooms = async (req, res) => {
 // GET /api/rooms/:id
 export const getRoom = async (req, res) => {
   try {
-    const room = await Room.findById(req.params.id).populate({
+    const { id } = req.params;
+    
+    // Validate MongoDB ObjectID format
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.json({ success: false, message: 'Invalid room ID format' });
+    }
+
+    const room = await Room.findById(id).populate({
       path: 'hotel',
       populate: {
         path: 'owner',
-        select: 'image',
+        select: 'image name email',
       },
     });
 
     if (!room) {
-      return res.json({ success: false, message: 'Room not found' });
+      return res.json({ success: false, message: 'Room not found in database' });
+    }
+
+    // Check if hotel data was properly populated
+    if (!room.hotel) {
+      return res.json({ success: false, message: 'Room hotel data is missing' });
     }
 
     res.json({ success: true, room });
   } catch (error) {
+    console.error('Error fetching room:', error);
     res.json({ success: false, message: error.message });
   }
 };

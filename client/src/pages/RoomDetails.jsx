@@ -14,6 +14,8 @@ const RoomDetails = () => {
     const [checkInDate, setCheckInDate] = useState(null);
     const [checkOutDate, setCheckOutDate] = useState(null);
     const [guests, setGuests] = useState(1);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     const [isAvailable, setIsAvailable] = useState(false);
 
@@ -66,17 +68,69 @@ const RoomDetails = () => {
     }
 
     useEffect(() => {
-        const room = rooms.find(room => room._id === id);
-        room && setRoom(room);
-        room && setMainImage(room.images[0]);
-    }, [rooms]);
+        const existingRoom = rooms.find(room => room._id === id);
+        if (existingRoom) {
+            setRoom(existingRoom);
+            setMainImage(existingRoom.images[0]);
+            setError(null);
+            setLoading(false);
+            return;
+        }
 
-    return room && (
+        const fetchRoom = async () => {
+            try {
+                const { data } = await axios.get(`/api/rooms/${id}`);
+                if (data.success) {
+                    setRoom(data.room);
+                    setMainImage(data.room.images[0]);
+                    setError(null);
+                    toast.success('Room loaded successfully');
+                } else {
+                    setError(data.message);
+                    toast.error(data.message);
+                }
+            } catch (error) {
+                const errorMsg = error.response?.data?.message || error.message || 'Failed to fetch room';
+                setError(errorMsg);
+                toast.error(errorMsg);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchRoom();
+    }, [rooms, id]);
+
+    if (loading) {
+        return <div className='py-28 md:py-35 px-4 md:px-16 lg:px-24 xl:px-32 text-center text-gray-500'>Loading room details...</div>;
+    }
+
+    if (error) {
+        return <div className='py-28 md:py-35 px-4 md:px-16 lg:px-24 xl:px-32 text-center'>
+            <p className='text-red-600 font-medium mb-4'>Error: {error}</p>
+            <p className='text-gray-500 mb-6'>Room ID: {id}</p>
+            <button onClick={() => window.location.reload()} className='px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600'>
+                Try Again
+            </button>
+        </div>;
+    }
+
+    if (!room) {
+        return <div className='py-28 md:py-35 px-4 md:px-16 lg:px-24 xl:px-32 text-center text-gray-500'>Room not found.</div>;
+    }
+
+    const hostImage = room?.hotel?.owner?.image || 'https://via.placeholder.com/64x64?text=Host';
+    const hotelName = room?.hotel?.name || 'Hotel';
+    const hotelAddress = room?.hotel?.address || 'Location unavailable';
+    const roomImages = room?.images || [];
+    const roomAmenities = room?.amenities || [];
+
+    return (
         <div className='py-28 md:py-35 px-4 md:px-16 lg:px-24 xl:px-32'>
 
             {/* Room Details */}
             <div className='flex flex-col md:flex-row items-start md:items-center gap-2'>
-                <h1 className='text-3xl md:text-4xl font-playfair'>{room.hotel.name} <span className='font-inter text-sm'>({room.roomType})</span></h1>
+                <h1 className='text-3xl md:text-4xl font-playfair'>{hotelName} <span className='font-inter text-sm'>({room.roomType})</span></h1>
                 <p className='text-xs font-inter py-1.5 px-3 text-white bg-orange-500 rounded-full'>20% OFF</p>
             </div>
             <div className='flex items-center gap-1 mt-2'>
@@ -85,7 +139,7 @@ const RoomDetails = () => {
             </div>
             <div className='flex items-center gap-1 text-gray-500 mt-2'>
                 <img src={assets.locationIcon} alt='location-icon' />
-                <span>{room.hotel.address}</span>
+                <span>{hotelAddress}</span>
             </div>
 
             {/* Room Images */}
@@ -96,7 +150,7 @@ const RoomDetails = () => {
                 </div>
 
                 <div className='grid grid-cols-2 gap-4 lg:w-1/2 w-full'>
-                    {room?.images.length > 1 && room.images.map((image, index) => (
+                    {roomImages.length > 1 && roomImages.map((image, index) => (
                         <img key={index} onClick={() => setMainImage(image)}
                             className={`w-full rounded-xl shadow-md object-cover cursor-pointer ${mainImage === image && 'outline-3 outline-orange-500'}`} src={image} alt='Room Image' />
                     ))}
@@ -108,7 +162,7 @@ const RoomDetails = () => {
                 <div className='flex flex-col'>
                     <h1 className='text-3xl md:text-4xl font-playfair'>Experience Luxury Like Never Before</h1>
                     <div className='flex flex-wrap items-center mt-3 mb-6 gap-4'>
-                        {room.amenities.map((item, index) => (
+                        {roomAmenities.map((item, index) => (
                             <div key={index} className='flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100'>
                                 <img src={facilityIcons[item]} alt={item} className='w-5 h-5' />
                                 <p className='text-xs'>{item}</p>
@@ -117,7 +171,7 @@ const RoomDetails = () => {
                     </div>
                 </div>
                 {/* Room Price */}
-                <p className='text-2xl font-medium'>${room.pricePerNight}/night</p>
+                <p className='text-2xl font-medium'>${room.pricePerNight ?? '-'} /night</p>
             </div>
 
             {/* CheckIn CheckOut Form */}
@@ -160,9 +214,9 @@ const RoomDetails = () => {
 
             <div className='flex flex-col items-start gap-4'>
                 <div className='flex gap-4'>
-                    <img className='h-14 w-14 md:h-18 md:w-18 rounded-full' src={room.hotel.owner.image} alt='Host' />
+                    <img className='h-14 w-14 md:h-18 md:w-18 rounded-full' src={hostImage} alt='Host' />
                     <div>
-                        <p className='text-lg md:text-xl'>Hosted by {room.hotel.name}</p>
+                        <p className='text-lg md:text-xl'>Hosted by {hotelName}</p>
                         <div className='flex items-center mt-1'>
                             <StarRating />
                             <p className='ml-2'>200+ reviews</p>
