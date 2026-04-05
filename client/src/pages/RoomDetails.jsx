@@ -90,7 +90,13 @@ const RoomDetails = () => {
                 toast.error(data.message || 'Booking failed');
             }
         } catch (error) {
-            const errorMsg = error.response?.data?.message || error.message || 'Failed to book room';
+            const backendMessage = error.response?.data?.message || error.response?.data?.error;
+            const errorMsg = backendMessage || error.message || 'Failed to book room';
+            console.error('Booking request error:', {
+                response: error.response?.data,
+                status: error.response?.status,
+                error,
+            });
             toast.error(errorMsg);
         }
     }
