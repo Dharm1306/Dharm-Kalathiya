@@ -1,6 +1,5 @@
 import Booking from "../models/Booking.js";
 import Room from "../models/Room.js";
-import transporter from "../configs/nodemailer.js";
 
 const getRequestUser = (req) => {
   if (req.user && req.user._id) return req.user;
@@ -32,10 +31,13 @@ export const createBooking = async (req, res) => {
     }
 
     if (!room || !checkInDate || !checkOutDate) {
-      return res.status(400).json({ success: false, message: "Room, check-in date and check-out date are required" });
+      return res.status(400).json({
+        success: false,
+        message: "Room, check-in date and check-out date are required",
+      });
     }
 
-    const isAvailable = await checkAvailability({ checkInDate, checkOutDate, room });
+    const isAvailable = await checkAvailability({ room, checkInDate, checkOutDate });
     if (!isAvailable) {
       return res.status(409).json({ success: false, message: "Room is not available for the selected dates" });
     }
@@ -43,9 +45,6 @@ export const createBooking = async (req, res) => {
     const roomData = await Room.findById(room).populate("hotel");
     if (!roomData) {
       return res.status(404).json({ success: false, message: "Room not found" });
-    }
-    if (!roomData.hotel) {
-      return res.status(404).json({ success: false, message: "Hotel for this room was not found" });
     }
 
     const checkIn = new Date(checkInDate);
@@ -56,7 +55,7 @@ export const createBooking = async (req, res) => {
     const booking = await Booking.create({
       user: userInfo._id,
       room,
-      hotel: roomData.hotel._id,
+      hotel: roomData.hotel?._id,
       guests: Number(guests) || 1,
       checkInDate,
       checkOutDate,
@@ -67,10 +66,10 @@ export const createBooking = async (req, res) => {
       .populate({ path: "room", populate: { path: "hotel" } })
       .populate("hotel");
 
-    res.json({ success: true, message: "Booking created successfully", booking: populatedBooking });
+    return res.json({ success: true, message: "Booking created successfully", booking: populatedBooking });
   } catch (error) {
     console.error("Booking creation failed:", error);
-    res.status(500).json({ success: false, message: error.message || "Failed to create booking" });
+    return res.status(500).json({ success: false, message: error.message || "Failed to create booking" });
   }
 };
 
@@ -86,9 +85,9 @@ export const getUserBookings = async (req, res) => {
       .populate("hotel")
       .sort({ createdAt: -1 });
 
-    res.json({ success: true, bookings });
+    return res.json({ success: true, bookings });
   } catch (error) {
     console.error("Fetch user bookings failed:", error);
-    res.status(500).json({ success: false, message: error.message || "Failed to fetch bookings" });
+    return res.status(500).json({ success: false, message: error.message || "Failed to fetch bookings" });
   }
 };

@@ -49,7 +49,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 
-app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(clerkMiddleware());
 
@@ -60,17 +59,16 @@ app.use("/api/user", userRouter);
 app.use("/api/hotels", hotelRouter);
 app.use("/api/rooms", roomRouter);
 app.use("/api/bookings", bookingRouter);
-app.use("/api/booking", bookingRouter); // alias if frontend uses singular route
+app.use("/api/booking", bookingRouter); // alias if frontend calls singular route
 
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
 app.use((err, req, res, next) => {
-  console.error("Server error:", err.stack || err);
-  res.status(err.status || 500).json({
+  console.error("Server error:", err);
+  res.status(500).json({
     message: err.message || "Internal server error",
-    error: process.env.NODE_ENV !== "production" ? err.stack : undefined,
   });
 });
 
@@ -88,4 +86,4 @@ async function startServer() {
 startServer().catch((err) => {
   console.error("Failed to start server:", err);
   process.exit(1);
-});
+}); 
