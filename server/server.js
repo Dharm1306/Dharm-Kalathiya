@@ -34,9 +34,7 @@ const ALLOWED_VERCEL_REGEX = /^https:\/\/([a-z0-9-]+\.)?vercel\.app$/i;
 
 const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin) {
-      return callback(null, true);
-    }
+    if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin) || ALLOWED_VERCEL_REGEX.test(origin)) {
       return callback(null, true);
     }
@@ -62,6 +60,17 @@ app.use("/api/hotels", hotelRouter);
 app.use("/api/rooms", roomRouter);
 app.use("/api/bookings", bookingRouter);
 app.use("/api/booking", bookingRouter); // alias if frontend calls singular route
+
+app.use((req, res) => {
+  res.status(404).json({ message: "Route not found" });
+});
+
+app.use((err, req, res, next) => {
+  console.error("Server error:", err);
+  res.status(500).json({
+    message: err.message || "Internal server error",
+  });
+});
 
 const PORT = process.env.PORT || 3000;
 
