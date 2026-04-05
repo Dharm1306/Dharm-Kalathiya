@@ -186,7 +186,7 @@ const RoomDetails = () => {
             </div>
 
             {/* CheckIn CheckOut Form */}
-            <form onSubmit={onSubmitHandler} className='flex flex-col md:flex-row items-start md:items-center justify-between bg-white shadow-[0px_0px_20px_rgba(0,0,0,0.15)] p-6 rounded-xl mx-auto mt-16 max-w-6xl'>
+            <form onSubmit={(e) => e.preventDefault()} className='flex flex-col md:flex-row items-start md:items-center justify-between bg-white shadow-[0px_0px_20px_rgba(0,0,0,0.15)] p-6 rounded-xl mx-auto mt-16 max-w-6xl'>
                 <div className='flex flex-col flex-wrap md:flex-row items-start md:items-center gap-4 md:gap-10 text-gray-500'>
                     <div className='flex flex-col'>
                         <label htmlFor='checkInDate' className='font-medium'>Check-In</label>
