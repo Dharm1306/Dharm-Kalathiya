@@ -43,6 +43,7 @@ export const createBooking = async (req, res) => {
     if (!userInfo?._id) {
       return res.status(401).json({ success: false, message: "Authentication required" });
     }
+
     if (!room || !checkInDate || !checkOutDate) {
       return res.status(400).json({ success: false, message: "Room, check-in date and check-out date are required" });
     }
