@@ -76,9 +76,10 @@ const RoomDetails = () => {
             }
 
             const token = await getToken();
+            const guestsNumber = Math.max(1, Number(guests) || 1);
             const { data } = await axios.post(
                 '/api/bookings/book',
-                { room: id, checkInDate, checkOutDate, guests, paymentMethod: "Pay At Hotel" },
+                { room: id, checkInDate, checkOutDate, guests: guestsNumber, paymentMethod: "Pay At Hotel" },
                 { withCredentials: true, headers: { Authorization: `Bearer ${token}` } }
             );
 
@@ -90,12 +91,12 @@ const RoomDetails = () => {
                 toast.error(data.message || 'Booking failed');
             }
         } catch (error) {
-            const backendMessage = error.response?.data?.message || error.response?.data?.error;
+            const backendMessage = error.response?.data?.message || error.response?.data?.error || JSON.stringify(error.response?.data);
             const errorMsg = backendMessage || error.message || 'Failed to book room';
             console.error('Booking request error:', {
-                response: error.response?.data,
+                responseData: error.response?.data,
                 status: error.response?.status,
-                error,
+                errorMessage: error.message,
             });
             toast.error(errorMsg);
         }
