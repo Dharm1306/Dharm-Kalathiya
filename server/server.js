@@ -14,13 +14,6 @@ import { stripeWebhooks } from "./controllers/stripeWebhooks.js";
 
 const app = express();
 
-connectDB().then(() => {
-  if (process.env.NODE_ENV !== "production") {
-    seedSampleData();
-  }
-});
-connectCloudinary();
-
 app.post(
   "/api/stripe",
   express.raw({ type: "application/json" }),
@@ -68,6 +61,20 @@ app.use("/api/user", userRouter);
 app.use("/api/hotels", hotelRouter);
 app.use("/api/rooms", roomRouter);
 app.use("/api/bookings", bookingRouter);
+app.use("/api/booking", bookingRouter); // alias if frontend calls singular route
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+async function startServer() {
+  await connectDB();
+  if (process.env.NODE_ENV !== "production") {
+    await seedSampleData();
+  }
+  await connectCloudinary();
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+
+startServer().catch((err) => {
+  console.error("Failed to start server:", err);
+  process.exit(1);
+});

@@ -14,11 +14,10 @@ const checkAvailability = async ({ checkInDate, checkOutDate, room }) => {
       checkOutDate: { $gte: checkInDate },
     });
 
-    const isAvailable = bookings.length === 0;
-    return isAvailable;
-
+    return bookings.length === 0;
   } catch (error) {
-    console.error(error.message);
+    console.error('Availability check failed:', error);
+    return false;
   }
 };
 
@@ -44,6 +43,10 @@ export const checkAvailabilityAPI = async (req, res) => {
 export const createBooking = async (req, res) => {
   try {
     const { room, checkInDate, checkOutDate, guests } = req.body;
+    console.log('Booking request received:', {
+      authUserId: req.user?._id,
+      body: req.body,
+    });
 
     if (!req.user || !req.user._id) {
       return res.status(401).json({ success: false, message: "Authentication required" });
@@ -122,8 +125,12 @@ export const createBooking = async (req, res) => {
 
     res.json({ success: true, message: "Booking created successfully", booking });
   } catch (error) {
-    console.error("Booking creation failed:", error);
-    res.status(500).json({ success: false, message: error.message || "Failed to create booking" });
+    console.error("Booking creation failed:", {
+      error: error.message || error,
+      body: req.body,
+      user: req.user?._id,
+    });
+    res.status(500).json({ success: false, message: error.message || "Failed to create booking", error: error.toString() });
   }
 };
 
