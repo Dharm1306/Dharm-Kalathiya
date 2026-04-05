@@ -46,8 +46,8 @@ const Footer = () => {
                         Subscribe to our newsletter for travel inspiration and special offers.
                     </p>
                     <div className='flex items-center mt-4'>
-                        <input type="text" className='bg-white rounded-l border border-gray-300 h-9 px-3 outline-none' placeholder='Your email' />
-                        <button className='flex items-center justify-center bg-black h-9 w-9 aspect-square rounded-r'>
+                        <input type="email" id='newsletter-email' className='bg-white rounded-l border border-gray-300 h-9 px-3 outline-none' placeholder='Your email' />
+                        <button type='button' onClick={() => { const email = document.getElementById('newsletter-email').value; if(email) { alert('Thanks for subscribing!'); document.getElementById('newsletter-email').value = ''; } else { alert('Please enter an email'); } }} className='flex items-center justify-center bg-black h-9 w-9 aspect-square rounded-r hover:bg-gray-800 transition-all cursor-pointer'>
                             <img src={assets.arrowIcon} alt="arrow-icon" className='w-3.5 invert' />
                         </button>
                     </div>

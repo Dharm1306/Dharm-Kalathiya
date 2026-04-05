@@ -63,7 +63,7 @@ const HotelReg = () => {
                         </select>
                     </div>
 
-                    <button className="bg-indigo-500 hover:bg-indigo-600 transition-all text-white mr-auto px-6 py-2 rounded cursor-pointer mt-6">
+                    <button type="submit" className="bg-indigo-500 hover:bg-indigo-600 transition-all text-white mr-auto px-6 py-2 rounded cursor-pointer mt-6">
                         Register
                     </button>
                 </div>
