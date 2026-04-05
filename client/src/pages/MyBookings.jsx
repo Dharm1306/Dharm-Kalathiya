@@ -8,19 +8,23 @@ const MyBookings = () => {
 
     const { axios, getToken, user } = useAppContext();
     const [bookings, setBookings] = useState([]);
-
+    const [loading, setLoading] = useState(true);
 
     const fetchUserBookings = async () => {
+        setLoading(true);
         try {
-            const { data } = await axios.get('/api/bookings/user', { withCredentials: true, headers: { Authorization: `Bearer ${await getToken()}` } })
+            const token = await getToken();
+            const { data } = await axios.get('/api/bookings/user', { withCredentials: true, headers: { Authorization: `Bearer ${token}` } });
             if (data.success) {
-                setBookings(data.bookings)
-            }
-            else {
-                toast.error(data.message)
+                setBookings(data.bookings);
+            } else {
+                toast.error(data.message || 'Failed to fetch bookings');
             }
         } catch (error) {
-            toast.error(error.message)
+            const errorMsg = error.response?.data?.message || error.message || 'Failed to fetch bookings';
+            toast.error(errorMsg);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -40,6 +44,8 @@ const MyBookings = () => {
     useEffect(() => {
         if (user) {
             fetchUserBookings();
+        } else {
+            setLoading(false);
         }
     }, [user]);
 
@@ -53,7 +59,13 @@ const MyBookings = () => {
                     <div className="w-1/3">Payment</div>
                 </div>
 
-                {bookings.map((booking) => (
+                {loading ? (
+                    <div className="py-16 text-center text-gray-500">Loading your bookings...</div>
+                ) : !user ? (
+                    <div className="py-16 text-center text-gray-500">Please sign in to view your bookings.</div>
+                ) : bookings.length === 0 ? (
+                    <div className="py-16 text-center text-gray-500">You have no bookings yet.</div>
+                ) : bookings.map((booking) => (
                     <div key={booking._id} className="grid grid-cols-1 md:grid-cols-[3fr_2fr_1fr] w-full border-b border-gray-300 py-6 first:border-t">
                         <div className="flex flex-col md:flex-row">
                             <img className="min-md:w-44 rounded shadow object-cover" src={booking.room.images[0]} alt="hotel-img" />

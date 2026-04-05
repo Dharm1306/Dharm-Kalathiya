@@ -14,7 +14,7 @@ export const AppProvider = ({ children }) => {
 
     const currency = import.meta.env.VITE_CURRENCY || "$";
     const navigate = useNavigate();
-    const { user } = useUser();
+    const { user, isLoaded } = useUser();
     const { getToken } = useAuth()
 
     const [isOwner, setIsOwner] = useState(false);
@@ -80,10 +80,10 @@ export const AppProvider = ({ children }) => {
     }
 
     useEffect(() => {
-        if (user) {
+        if (isLoaded && user) {
             fetchUser();
         }
-    }, [user]);
+    }, [isLoaded, user]);
 
     useEffect(() => {
         fetchRooms();

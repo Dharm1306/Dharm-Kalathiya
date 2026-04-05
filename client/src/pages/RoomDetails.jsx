@@ -28,8 +28,8 @@ const RoomDetails = () => {
                 return false;
             }
 
-            if (checkInDate >= checkOutDate) {
-                toast.error('Check-In Date should be less than Check-Out Date');
+            if (new Date(checkInDate) >= new Date(checkOutDate)) {
+                toast.error('Check-In date should be before Check-Out date');
                 return false;
             }
 
@@ -47,18 +47,24 @@ const RoomDetails = () => {
                 }
             } else {
                 setIsAvailable(false);
-                toast.error(data.message);
+                toast.error(data.message || 'Availability check failed');
                 return false;
             }
         } catch (error) {
             setIsAvailable(false);
-            toast.error(error.message);
+            const errorMsg = error.response?.data?.message || error.message || 'Failed to check availability';
+            toast.error(errorMsg);
             return false;
         }
     }
 
     const bookRoom = async () => {
         try {
+            if (!user) {
+                toast.error('Please sign in to complete your booking');
+                return;
+            }
+
             if (!checkInDate || !checkOutDate) {
                 toast.error('Please select your booking dates first');
                 return;
@@ -69,16 +75,23 @@ const RoomDetails = () => {
                 return;
             }
 
-            const { data } = await axios.post('/api/bookings/book', { room: id, checkInDate, checkOutDate, guests, paymentMethod: "Pay At Hotel" }, { headers: { Authorization: `Bearer ${await getToken()}` } });
+            const token = await getToken();
+            const { data } = await axios.post(
+                '/api/bookings/book',
+                { room: id, checkInDate, checkOutDate, guests, paymentMethod: "Pay At Hotel" },
+                { withCredentials: true, headers: { Authorization: `Bearer ${token}` } }
+            );
+
             if (data.success) {
                 toast.success(data.message);
                 navigate('/my-bookings');
                 scrollTo(0, 0);
             } else {
-                toast.error(data.message);
+                toast.error(data.message || 'Booking failed');
             }
         } catch (error) {
-            toast.error(error.message);
+            const errorMsg = error.response?.data?.message || error.message || 'Failed to book room';
+            toast.error(errorMsg);
         }
     }
 
