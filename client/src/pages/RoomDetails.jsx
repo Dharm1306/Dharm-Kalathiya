@@ -25,12 +25,12 @@ const RoomDetails = () => {
         try {
             if (!checkInDate || !checkOutDate) {
                 toast.error('Please select both check-in and check-out dates');
-                return;
+                return false;
             }
 
             if (checkInDate >= checkOutDate) {
                 toast.error('Check-In Date should be less than Check-Out Date');
-                return;
+                return false;
             }
 
             const { data } = await axios.post('/api/bookings/check-availability', { room: id, checkInDate, checkOutDate });
@@ -39,17 +39,21 @@ const RoomDetails = () => {
                 if (data.isAvailable) {
                     setIsAvailable(true);
                     toast.success('Room is available');
+                    return true;
                 } else {
                     setIsAvailable(false);
                     toast.error('Room is not available');
+                    return false;
                 }
             } else {
                 setIsAvailable(false);
                 toast.error(data.message);
+                return false;
             }
         } catch (error) {
             setIsAvailable(false);
             toast.error(error.message);
+            return false;
         }
     }
 
@@ -60,8 +64,8 @@ const RoomDetails = () => {
                 return;
             }
 
-            if (!isAvailable) {
-                toast.error('Please check availability before booking');
+            const available = await checkAvailability();
+            if (!available) {
                 return;
             }
 
@@ -205,7 +209,7 @@ const RoomDetails = () => {
                 </div>
                 <div className='flex flex-col gap-3 md:gap-4 w-full md:w-auto'>
                     <button type='button' onClick={checkAvailability} className='bg-orange-500 hover:bg-orange-600 active:scale-95 transition-all text-white rounded-md w-full md:w-auto px-6 py-3 text-base cursor-pointer'>Check Availability</button>
-                    <button type='button' onClick={bookRoom} disabled={!isAvailable} className={`rounded-md w-full md:w-auto px-6 py-3 text-base transition-all ${isAvailable ? 'bg-primary hover:bg-primary-dull text-white' : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}>Book Now</button>
+                    <button type='button' onClick={bookRoom} disabled={!checkInDate || !checkOutDate} className={`rounded-md w-full md:w-auto px-6 py-3 text-base transition-all ${checkInDate && checkOutDate ? 'bg-primary hover:bg-primary-dull text-white' : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}>Book Now</button>
                 </div>
             </form>
             <div className='mt-4 max-w-6xl text-sm text-gray-600'>
