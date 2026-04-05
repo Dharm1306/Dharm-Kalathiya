@@ -7,7 +7,7 @@ const getRequestUser = (req) => {
   return null;
 };
 
-const checkAvailability = async ({ checkInDate, checkOutDate, room }) => {
+const checkAvailability = async ({ room, checkInDate, checkOutDate }) => {
   try {
     const bookings = await Booking.find({
       room,
@@ -18,6 +18,20 @@ const checkAvailability = async ({ checkInDate, checkOutDate, room }) => {
   } catch (error) {
     console.error("Availability check failed:", error);
     return false;
+  }
+};
+
+export const checkAvailabilityAPI = async (req, res) => {
+  try {
+    const { room, checkInDate, checkOutDate } = req.body;
+    if (!room || !checkInDate || !checkOutDate) {
+      return res.status(400).json({ success: false, message: "room, checkInDate and checkOutDate are required" });
+    }
+    const available = await checkAvailability({ room, checkInDate, checkOutDate });
+    return res.json({ success: true, available });
+  } catch (error) {
+    console.error("checkAvailabilityAPI failed:", error);
+    return res.status(500).json({ success: false, message: error.message || "Failed to check availability" });
   }
 };
 
@@ -46,6 +60,9 @@ export const createBooking = async (req, res) => {
     if (!roomData) {
       return res.status(404).json({ success: false, message: "Room not found" });
     }
+    if (!roomData.hotel) {
+      return res.status(404).json({ success: false, message: "Hotel not found for this room" });
+    }
 
     const checkIn = new Date(checkInDate);
     const checkOut = new Date(checkOutDate);
@@ -55,7 +72,7 @@ export const createBooking = async (req, res) => {
     const booking = await Booking.create({
       user: userInfo._id,
       room,
-      hotel: roomData.hotel?._id,
+      hotel: roomData.hotel._id,
       guests: Number(guests) || 1,
       checkInDate,
       checkOutDate,
@@ -66,7 +83,11 @@ export const createBooking = async (req, res) => {
       .populate({ path: "room", populate: { path: "hotel" } })
       .populate("hotel");
 
-    return res.json({ success: true, message: "Booking created successfully", booking: populatedBooking });
+    return res.json({
+      success: true,
+      message: "Booking created successfully",
+      booking: populatedBooking,
+    });
   } catch (error) {
     console.error("Booking creation failed:", error);
     return res.status(500).json({ success: false, message: error.message || "Failed to create booking" });
