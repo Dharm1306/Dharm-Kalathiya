@@ -119,7 +119,7 @@ const RoomDetails = () => {
         return <div className='py-28 md:py-35 px-4 md:px-16 lg:px-24 xl:px-32 text-center text-gray-500'>Room not found.</div>;
     }
 
-    const hostImage = room?.hotel?.owner?.image || 'https://via.placeholder.com/64x64?text=Host';
+    const hostImage = room?.hotel?.owner?.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(room?.hotel?.owner?.username || 'Host')}&size=64&background=FF6B35&color=fff`;
     const hotelName = room?.hotel?.name || 'Hotel';
     const hotelAddress = room?.hotel?.address || 'Location unavailable';
     const roomImages = room?.images || [];
