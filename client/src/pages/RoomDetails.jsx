@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 
 const RoomDetails = () => {
     const { id } = useParams();
-    const { facilityIcons, rooms, getToken, axios, navigate } = useAppContext();
+    const { facilityIcons, rooms, getToken, axios, navigate, user } = useAppContext();
 
     const [room, setRoom] = useState(null);
     const [mainImage, setMainImage] = useState(null);
@@ -208,14 +208,19 @@ const RoomDetails = () => {
                     </div>
                 </div>
                 <div className='flex flex-col gap-3 md:gap-4 w-full md:w-auto'>
-                    <button type='button' onClick={checkAvailability} className='bg-orange-500 hover:bg-orange-600 active:scale-95 transition-all text-white rounded-md w-full md:w-auto px-6 py-3 text-base cursor-pointer'>Check Availability</button>
-                    <button type='button' onClick={bookRoom} disabled={!checkInDate || !checkOutDate} className={`rounded-md w-full md:w-auto px-6 py-3 text-base transition-all ${checkInDate && checkOutDate ? 'bg-primary hover:bg-primary-dull text-white' : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}>Book Now</button>
+                    <button type='button' onClick={bookRoom} disabled={!user || !checkInDate || !checkOutDate} className={`rounded-md w-full md:w-auto px-6 py-3 text-base transition-all ${user && checkInDate && checkOutDate ? 'bg-primary hover:bg-primary-dull text-white' : 'bg-gray-300 text-gray-600 cursor-not-allowed'}`}>
+                        {user ? 'Book Now' : 'Sign in to book'}
+                    </button>
                 </div>
             </form>
             <div className='mt-4 max-w-6xl text-sm text-gray-600'>
-                {!hasCheckedAvailability && <p>Please select your check-in and check-out dates, then click <strong>Check Availability</strong> to see if the room can be booked.</p>}
-                {hasCheckedAvailability && isAvailable && <p className='text-green-600'>Great news! This room is available. Click <strong>Book Now</strong> to complete the reservation.</p>}
-                {hasCheckedAvailability && !isAvailable && <p className='text-red-600'>This room is not available for the selected dates. Try another date range.</p>}
+                {!checkInDate || !checkOutDate ? (
+                    <p>Please select your check-in and check-out dates, then click <strong>Book Now</strong>.</p>
+                ) : !user ? (
+                    <p>Please sign in to complete your booking.</p>
+                ) : (
+                    <p>Click <strong>Book Now</strong> to reserve the room. If it is unavailable, an error will be shown.</p>
+                )}
                 <p className='mt-2 text-xs'>Payment is handled after booking on the My Bookings page.</p>
             </div>
 
