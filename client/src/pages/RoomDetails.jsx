@@ -36,7 +36,7 @@ const RoomDetails = () => {
             const { data } = await axios.post('/api/bookings/check-availability', { room: id, checkInDate, checkOutDate });
             setHasCheckedAvailability(true);
             if (data.success) {
-                if (data.available) {
+                if (data.isAvailable) {
                     setIsAvailable(true);
                     toast.success('Room is available');
                     return true;

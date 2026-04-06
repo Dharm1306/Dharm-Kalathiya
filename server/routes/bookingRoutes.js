@@ -21,12 +21,10 @@ bookingRouter.post("/check-availability", checkAvailabilityAPI);
 // ✅ 2. Create booking
 bookingRouter.post("/book", requireAuth(), protect, createBooking);
 
-// ✅ 3. Get user bookings (IMPORTANT FIX)
-// 🔴 OLD: /user
-// ✅ NEW: /user-bookings  (match frontend)
+// ✅ 3. Get user bookings (match frontend)
 bookingRouter.get("/user-bookings", requireAuth(), protect, getUserBookings);
 
-// ✅ 4. My bookings page (keep this)
+// ✅ 4. My bookings page
 bookingRouter.get("/my-bookings", requireAuth(), protect, getMyBookings);
 
 // ✅ 5. Hotel bookings
