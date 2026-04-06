@@ -14,7 +14,7 @@ const MyBookings = () => {
         setLoading(true);
         try {
             const token = await getToken();
-            const { data } = await axios.get('/api/bookings/user', { withCredentials: true, headers: { Authorization: `Bearer ${token}` } });
+            const { data } = await axios.get('/api/bookings/user-bookings', { withCredentials: true, headers: { Authorization: `Bearer ${token}` } });
             if (data.success) {
                 setBookings(data.bookings);
             } else {
