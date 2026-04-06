@@ -108,4 +108,4 @@ export const getUserBookings = async (req, res) => {
     console.error("Fetch user bookings failed:", error);
     return res.status(500).json({ success: false, message: error.message || "Failed to fetch bookings" });
   }
-};z
+};

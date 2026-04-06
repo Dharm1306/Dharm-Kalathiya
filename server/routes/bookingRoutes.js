@@ -1,6 +1,7 @@
 import express from "express";
 import { requireAuth } from "@clerk/express";
 import { protect } from "../middleware/authMiddleware.js";
+
 import {
   checkAvailabilityAPI,
   createBooking,
@@ -14,28 +15,30 @@ import {
 
 const bookingRouter = express.Router();
 
-// Availability check (public)
+// ✅ 1. Availability check (PUBLIC)
 bookingRouter.post("/check-availability", checkAvailabilityAPI);
 
-// Booking creation with error handling
+// ✅ 2. Create booking
 bookingRouter.post("/book", requireAuth(), protect, createBooking);
 
-// Get user's bookings
-bookingRouter.get("/user", requireAuth(), protect, getUserBookings);
+// ✅ 3. Get user bookings (IMPORTANT FIX)
+// 🔴 OLD: /user
+// ✅ NEW: /user-bookings  (match frontend)
+bookingRouter.get("/user-bookings", requireAuth(), protect, getUserBookings);
 
-// Get my bookings (enhanced with filtering/sorting)
+// ✅ 4. My bookings page (keep this)
 bookingRouter.get("/my-bookings", requireAuth(), protect, getMyBookings);
 
-// Get hotel's bookings
+// ✅ 5. Hotel bookings
 bookingRouter.get("/hotel", requireAuth(), protect, getHotelBookings);
 
-// Payment processing
+// ✅ 6. Payment
 bookingRouter.post("/stripe-payment", requireAuth(), protect, stripePayment);
 
-// Update booking details
+// ✅ 7. Update booking
 bookingRouter.put("/:bookingId", requireAuth(), protect, updateBooking);
 
-// Cancel booking
+// ✅ 8. Cancel booking
 bookingRouter.delete("/:bookingId", requireAuth(), protect, cancelBooking);
 
 export default bookingRouter;

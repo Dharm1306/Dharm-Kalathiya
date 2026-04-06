@@ -59,7 +59,7 @@ app.use("/api/user", userRouter);
 app.use("/api/hotels", hotelRouter);
 app.use("/api/rooms", roomRouter);
 app.use("/api/bookings", bookingRouter);
-app.use("/api/booking", bookingRouter); // alias if frontend calls singular route
+app.use("/api/booking", bookingRouter); 
 
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });

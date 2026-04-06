@@ -11,9 +11,9 @@ const connectDB = async () => {
 
     const mongoUri = isAtlasPlaceholder
         ? "mongodb://127.0.0.1:27017/hotel-booking"
-        : envUri.replace(/\/+$/, ""); // assume full Atlas URI in env
+        : envUri.replace(/\/+$/, ""); 
 
-    // if a plain host string is provided (without DB name), attach it
+    
     const finalMongoUri = !isAtlasPlaceholder && !/\/[^/]+$/.test(envUri)
         ? `${mongoUri}/hotel-booking`
         : mongoUri;
@@ -42,4 +42,3 @@ const connectDB = async () => {
 };
 
 export default connectDB;
-// Note: Do not use the '@' symbol in your database user's password.
