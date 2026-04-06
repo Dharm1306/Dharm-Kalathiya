@@ -33,6 +33,7 @@ const RoomDetails = () => {
             }
 
             const { data } = await axios.post('/api/bookings/check-availability', {
+                room: id,
                 roomId: id,
                 hotelId: room?.hotel?._id,
                 checkInDate,
@@ -82,11 +83,12 @@ const RoomDetails = () => {
 
             const token = await getToken();
             const guestsNumber = Math.max(1, Number(guests) || 1);
-
             const { data } = await axios.post(
                 '/api/bookings/book',
                 {
+                    room: id,
                     roomId: id,
+                    hotel: room?.hotel?._id,
                     hotelId: room?.hotel?._id,
                     checkInDate,
                     checkOutDate,
