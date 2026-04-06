@@ -2,115 +2,130 @@ import Hotel from "../models/Hotel.js";
 import Room from "../models/Room.js";
 import { v2 as cloudinary } from "cloudinary";
 
-// API to create a new room for a hotel
-// POST /api/rooms
+// ✅ CREATE ROOM
 export const createRoom = async (req, res) => {
   try {
     const { roomType, pricePerNight, amenities } = req.body;
 
     const hotel = await Hotel.findOne({ owner: req.auth.userId });
 
-    if (!hotel) return res.json({ success: false, message: "No Hotel found" });
+    if (!hotel) {
+      return res.json({ success: false, message: "No Hotel found" });
+    }
 
-    // upload images to cloudinary
+    // Upload images to cloudinary
     const uploadImages = req.files.map(async (file) => {
       const response = await cloudinary.uploader.upload(file.path);
       return response.secure_url;
     });
 
-    // Wait for all uploads to complete
     const images = await Promise.all(uploadImages);
 
+    // ✅ FIX: Added isAvailable
     await Room.create({
       hotel: hotel._id,
       roomType,
       pricePerNight: +pricePerNight,
       amenities: JSON.parse(amenities),
       images,
+      isAvailable: true, // ⭐ IMPORTANT FIX
     });
 
     res.json({ success: true, message: "Room created successfully" });
+
   } catch (error) {
     res.json({ success: false, message: error.message });
   }
 };
 
-// API to get all rooms
-// GET /api/rooms
+// ✅ GET ALL ROOMS
 export const getRooms = async (req, res) => {
   try {
-    const rooms = await Room.find({ isAvailable: true })
+    // ✅ FIX: removed filter (so old data also shows)
+    const rooms = await Room.find()
       .populate({
-        path: 'hotel',
+        path: "hotel",
         populate: {
-          path: 'owner',
-          select: 'image',
+          path: "owner",
+          select: "image",
         },
-      }).sort({ createdAt: -1 });
+      })
+      .sort({ createdAt: -1 });
+
     res.json({ success: true, rooms });
+
   } catch (error) {
     res.json({ success: false, message: error.message });
   }
 };
 
-// API to get a single room by ID
-// GET /api/rooms/:id
+// ✅ GET SINGLE ROOM
 export const getRoom = async (req, res) => {
   try {
     const { id } = req.params;
-    
-    // Validate MongoDB ObjectID format
+
     if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.json({ success: false, message: 'Invalid room ID format' });
+      return res.json({ success: false, message: "Invalid room ID format" });
     }
 
     const room = await Room.findById(id).populate({
-      path: 'hotel',
+      path: "hotel",
       populate: {
-        path: 'owner',
-        select: 'image name email',
+        path: "owner",
+        select: "image name email",
       },
     });
 
     if (!room) {
-      return res.json({ success: false, message: 'Room not found in database' });
+      return res.json({ success: false, message: "Room not found in database" });
     }
 
-    // Check if hotel data was properly populated
     if (!room.hotel) {
-      return res.json({ success: false, message: 'Room hotel data is missing' });
+      return res.json({ success: false, message: "Room hotel data is missing" });
     }
 
     res.json({ success: true, room });
+
   } catch (error) {
-    console.error('Error fetching room:', error);
+    console.error(error);
     res.json({ success: false, message: error.message });
   }
 };
 
-// API to get all rooms for a specific hotel
-// GET /api/rooms/owner
+// ✅ GET OWNER ROOMS
 export const getOwnerRooms = async (req, res) => {
   try {
     const hotelData = await Hotel.findOne({ owner: req.auth.userId });
-    const rooms = await Room.find({ hotel: hotelData._id.toString() }).populate("hotel");
+
+    if (!hotelData) {
+      return res.json({ success: false, message: "Hotel not found" });
+    }
+
+    const rooms = await Room.find({ hotel: hotelData._id }).populate("hotel");
+
     res.json({ success: true, rooms });
+
   } catch (error) {
-    console.log(error);
-    
     res.json({ success: false, message: error.message });
   }
 };
 
-// API to toggle availability of a room
-// POST /api/rooms/toggle-availability
+// ✅ TOGGLE ROOM AVAILABILITY
 export const toggleRoomAvailability = async (req, res) => {
   try {
     const { roomId } = req.body;
+
     const roomData = await Room.findById(roomId);
+
+    if (!roomData) {
+      return res.json({ success: false, message: "Room not found" });
+    }
+
     roomData.isAvailable = !roomData.isAvailable;
     await roomData.save();
-    res.json({ success: true, message: "Room availability Updated" });
+
+    res.json({ success: true, message: "Room availability updated" });
+
   } catch (error) {
     res.json({ success: false, message: error.message });
   }
