@@ -1,4 +1,6 @@
 import express from "express";
+import bookingRouter from './routes/bookingRoutes.js'
+app.use('/api/bookings', bookingRouter);
 import { requireAuth } from "@clerk/express";
 import { protect } from "../middleware/authMiddleware.js";
 
